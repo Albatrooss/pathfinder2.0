@@ -132,13 +132,13 @@ main {
 .endNode {
   width: 80%;
   height: 80%;
-  background-image: url("https://github.com/Albatrooss/pathfinder2.0/blob/master/pacman02.png");
+  background-image: url('https://i.imgur.com/GeNKWHm.png');
   background-size: 100%;
   background-position: center;
 }
 
 .endNode {
-  background-image: url(/cherry.png);
+  background-image: url('https://i.imgur.com/2JUMowc.png');
 }
 
 @media only screen and (min-width: 768px) {
