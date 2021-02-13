@@ -1,0 +1,259 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+
+$grey: #6A6D73;
+$midgreen: #2DA635;
+$lime01: #47F241;
+$green: #2C7329;
+$mid: #24733F;
+$path: blue;
+
+//pacman
+$yellow: #FFFF00;
+$darkblue: #1919A6;
+$blue: #2121DE;
+$peach: #DEA185;
+$red: #FD0000;
+$lime: #00FF00;
+
+$white: #f3f3f3;
+$black: #0D0D0D;
+
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+h1, h2, h3, h4, h5, h6,
+p, a, div, span {
+    font-family: 'Poppins';
+    color: $black;
+}
+
+body {
+    max-height: 100vh;
+    overflow: hidden;
+}
+
+.max-wrapper {
+    width: 1005;
+    max-width: 1366px;
+    height: 100%;
+    margin: 0 auto;
+}
+
+nav {
+    background-color: $darkblue;
+    width: 100%;
+    height: 80px;
+}
+
+.nav {
+    color: $white;
+
+    &__left,
+    &__right {
+        display: none;
+    }
+    &__center {
+        flex: 1;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    &__btn {
+        font-size: 1.4rem;
+        text-transform: capitalize;
+        background-color: $yellow;
+        color: $grey;
+        border: none;
+        outline: none;
+        padding: 1rem 2rem;
+    }
+}
+
+main {
+    width: 100%;
+    height: calc(100vh - 80px);
+    background-color: $blue;
+    // padding: 1rem 0;
+}
+
+.grid {
+    background-color: $grey;
+    width: 100%;
+    height: 100%;
+    margin-left: -1px;
+
+    // display: flex;
+    // flex-wrap: wrap;
+    display: grid;
+    // grid-gap: 1px;
+}
+
+.cell {
+    background-color: $black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 1px;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px dashed $grey;
+    border-left: 1px dashed $grey;
+
+    // &::before {
+    //     content: '';
+    //     display: block;
+    //     padding-top: 100%;;
+    // }
+}
+
+.startNode,
+.endNode,
+.block,
+.search,
+.path {
+    // background-color: green;
+    display: block;
+    width: 100%;
+    height: 100%;
+    // border-radius: 50%;
+}
+
+.block {
+    border: 5px solid $darkblue;
+    animation: growBlock 500ms ease forwards;
+}
+
+.search {
+    // background-color: rgb(255, 174, 0);
+    animation: grow 500ms ease forwards;
+}
+
+.path {
+    animation: growPath 500ms ease forwards;
+}
+
+.startNode,
+.endNode {
+    width: 80%;
+    height: 80%;
+    background-image: url(/pacman02.png);
+    background-size: 100%;
+    background-position: center;
+}
+
+.endNode {
+    background-image: url(/cherry.png);
+}
+
+@media only screen and (min-width: 768px) {
+    .nav {
+        display: flex;
+
+        &__left,
+        &__right {
+            flex: 1;
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+        }
+
+        &__btn {
+            display: block;
+            cursor: pointer;
+            border: 3px solid $yellow;
+
+            transition: all 300ms cubic-bezier(0.165, 0.84, 0.44, 1);
+
+            &--secondary {
+                width: 150px;
+                height: 40px;
+                padding: 0;
+                text-align: center;
+                line-height: 30px;
+                background-color: $darkblue;
+                color: $yellow;
+
+                &.speed {
+                    padding-left: 20px;
+                }
+            }
+            &:hover {
+                background-color: $lime;
+                color: $black;
+            }
+            &.selected:hover {
+                background-color: $yellow;
+            }
+            &.selected {
+                background-color: $yellow;
+                color: $darkblue;
+
+            }
+
+        }
+    }
+}
+
+@keyframes grow {
+    0% {
+        transform: scale(0);
+        background-color: $black
+    }
+    50% {
+        transform: scale(100%);
+        background-color: $black
+    }
+    90% {
+        transform: scale(100%);
+        background-color: $lime;
+    }
+    100% {
+        display: none;
+    }
+}
+
+@keyframes growPath {
+    0% {
+        transform: scale(0);
+        margin: 0;
+        background-color: $lime;
+    }
+    50% {
+        transform: scale(300%);
+        background-color: $lime;
+    }
+    90% {
+        transform: scale(300%);
+    }
+    100% {
+        width: 25%;
+        height: 25%;
+        background-color: $white;
+    }
+}
+
+@keyframes growBlock {
+    0% {
+        transform: scale(0);
+        background-color: $grey;
+    }
+    50% {
+        transform: scale(100%);
+        background-color: $grey;
+    }
+    100% {
+        transform: scale(100%);
+        background-color: $black;
+    }
+}

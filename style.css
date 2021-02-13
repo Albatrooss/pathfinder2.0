@@ -1,0 +1,319 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins&display=swap");
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+h1, h2, h3, h4, h5, h6,
+p, a, div, span {
+  font-family: 'Poppins';
+  color: #0D0D0D;
+}
+
+body {
+  max-height: 100vh;
+  overflow: hidden;
+}
+
+.max-wrapper {
+  width: 1005;
+  max-width: 1366px;
+  height: 100%;
+  margin: 0 auto;
+}
+
+nav {
+  background-color: #1919A6;
+  width: 100%;
+  height: 80px;
+}
+
+.nav {
+  color: #f3f3f3;
+}
+
+.nav__left, .nav__right {
+  display: none;
+}
+
+.nav__center {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  height: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.nav__btn {
+  font-size: 1.4rem;
+  text-transform: capitalize;
+  background-color: #FFFF00;
+  color: #6A6D73;
+  border: none;
+  outline: none;
+  padding: 1rem 2rem;
+}
+
+main {
+  width: 100%;
+  height: calc(100vh - 80px);
+  background-color: #2121DE;
+}
+
+.grid {
+  background-color: #6A6D73;
+  width: 100%;
+  height: 100%;
+  margin-left: -1px;
+  display: -ms-grid;
+  display: grid;
+}
+
+.cell {
+  background-color: #0D0D0D;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  margin: 1px;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-bottom: 1px dashed #6A6D73;
+  border-left: 1px dashed #6A6D73;
+}
+
+.startNode,
+.endNode,
+.block,
+.search,
+.path {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.block {
+  border: 5px solid #1919A6;
+  -webkit-animation: growBlock 500ms ease forwards;
+          animation: growBlock 500ms ease forwards;
+}
+
+.search {
+  -webkit-animation: grow 500ms ease forwards;
+          animation: grow 500ms ease forwards;
+}
+
+.path {
+  -webkit-animation: growPath 500ms ease forwards;
+          animation: growPath 500ms ease forwards;
+}
+
+.startNode,
+.endNode {
+  width: 80%;
+  height: 80%;
+  background-image: url(/pacman02.png);
+  background-size: 100%;
+  background-position: center;
+}
+
+.endNode {
+  background-image: url(/cherry.png);
+}
+
+@media only screen and (min-width: 768px) {
+  .nav {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+  }
+  .nav__left, .nav__right {
+    -webkit-box-flex: 1;
+        -ms-flex: 1;
+            flex: 1;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: space-evenly;
+        -ms-flex-pack: space-evenly;
+            justify-content: space-evenly;
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
+  }
+  .nav__btn {
+    display: block;
+    cursor: pointer;
+    border: 3px solid #FFFF00;
+    -webkit-transition: all 300ms cubic-bezier(0.165, 0.84, 0.44, 1);
+    transition: all 300ms cubic-bezier(0.165, 0.84, 0.44, 1);
+  }
+  .nav__btn--secondary {
+    width: 150px;
+    height: 40px;
+    padding: 0;
+    text-align: center;
+    line-height: 30px;
+    background-color: #1919A6;
+    color: #FFFF00;
+  }
+  .nav__btn--secondary.speed {
+    padding-left: 20px;
+  }
+  .nav__btn:hover {
+    background-color: #00FF00;
+    color: #0D0D0D;
+  }
+  .nav__btn.selected:hover {
+    background-color: #FFFF00;
+  }
+  .nav__btn.selected {
+    background-color: #FFFF00;
+    color: #1919A6;
+  }
+}
+
+@-webkit-keyframes grow {
+  0% {
+    -webkit-transform: scale(0);
+            transform: scale(0);
+    background-color: #0D0D0D;
+  }
+  50% {
+    -webkit-transform: scale(100%);
+            transform: scale(100%);
+    background-color: #0D0D0D;
+  }
+  90% {
+    -webkit-transform: scale(100%);
+            transform: scale(100%);
+    background-color: #00FF00;
+  }
+  100% {
+    display: none;
+  }
+}
+
+@keyframes grow {
+  0% {
+    -webkit-transform: scale(0);
+            transform: scale(0);
+    background-color: #0D0D0D;
+  }
+  50% {
+    -webkit-transform: scale(100%);
+            transform: scale(100%);
+    background-color: #0D0D0D;
+  }
+  90% {
+    -webkit-transform: scale(100%);
+            transform: scale(100%);
+    background-color: #00FF00;
+  }
+  100% {
+    display: none;
+  }
+}
+
+@-webkit-keyframes growPath {
+  0% {
+    -webkit-transform: scale(0);
+            transform: scale(0);
+    margin: 0;
+    background-color: #00FF00;
+  }
+  50% {
+    -webkit-transform: scale(300%);
+            transform: scale(300%);
+    background-color: #00FF00;
+  }
+  90% {
+    -webkit-transform: scale(300%);
+            transform: scale(300%);
+  }
+  100% {
+    width: 25%;
+    height: 25%;
+    background-color: #f3f3f3;
+  }
+}
+
+@keyframes growPath {
+  0% {
+    -webkit-transform: scale(0);
+            transform: scale(0);
+    margin: 0;
+    background-color: #00FF00;
+  }
+  50% {
+    -webkit-transform: scale(300%);
+            transform: scale(300%);
+    background-color: #00FF00;
+  }
+  90% {
+    -webkit-transform: scale(300%);
+            transform: scale(300%);
+  }
+  100% {
+    width: 25%;
+    height: 25%;
+    background-color: #f3f3f3;
+  }
+}
+
+@-webkit-keyframes growBlock {
+  0% {
+    -webkit-transform: scale(0);
+            transform: scale(0);
+    background-color: #6A6D73;
+  }
+  50% {
+    -webkit-transform: scale(100%);
+            transform: scale(100%);
+    background-color: #6A6D73;
+  }
+  100% {
+    -webkit-transform: scale(100%);
+            transform: scale(100%);
+    background-color: #0D0D0D;
+  }
+}
+
+@keyframes growBlock {
+  0% {
+    -webkit-transform: scale(0);
+            transform: scale(0);
+    background-color: #6A6D73;
+  }
+  50% {
+    -webkit-transform: scale(100%);
+            transform: scale(100%);
+    background-color: #6A6D73;
+  }
+  100% {
+    -webkit-transform: scale(100%);
+            transform: scale(100%);
+    background-color: #0D0D0D;
+  }
+}
+/*# sourceMappingURL=style.css.map */
