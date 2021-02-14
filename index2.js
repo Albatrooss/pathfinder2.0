@@ -125,6 +125,7 @@ class Grid {
         this.nodeList[y][x] = data;
     }
     dijkstras() {
+        if (this.started) return;
         let path = [];
         this.started = true;
         while (this.queue.length) {
@@ -155,6 +156,7 @@ class Grid {
         return this.animateSearch(path);
     }
     aStar(h) {
+        if (this.started) return;
         let path = [];
         this.started = true;
         while (this.queue.length) {
@@ -281,6 +283,19 @@ class Grid {
                     }
                 });
                 cell.on('dragover', e => e.preventDefault())
+                cell.on('drop', e => {
+                    e.preventDefault();
+                    const nodeId = e.dataTransfer.getData('node_id');
+                    const dropped = $('#'+nodeId);
+                    if (!e.target.id.match(/cell-/)) return dropped.style.display = 'block';
+                    if (nodeId === 'startNode') {
+                        dropped.style.display = 'block';
+                        startNode = e.target.id.split('-')[1];
+                        cell.append(dropped);
+                    } else if (nodeId === 'endNode') {
+
+                    }
+                })
                 // add start and end nodes
                 let [startX, startY] = this.startNode.split('-');
                 let [endX, endY] = this.endNode.split('-');
@@ -353,4 +368,6 @@ $('#speedSelect').on('change', function() {
 
 $('#clearBtn').on('click', GRID.reset)
 
-let start
+$('#instBtn').on('click', () => {
+    $('#instructions').hide();
+})

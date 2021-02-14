@@ -68,12 +68,79 @@ main {
   width: 100%;
   height: calc(100vh - 80px);
   background-color: #2121DE;
+  position: relative;
+}
+
+.instructions {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 80vw;
+  height: 50vh;
+  margin: -25vh 0 0 -40vw;
+  background-color: #f3f3f3;
+  padding-top: 1rem;
+  border: 2px solid #2121DE;
+  border-radius: 4px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.instructions__header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.instructions__div {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: space-evenly;
+      -ms-flex-pack: space-evenly;
+          justify-content: space-evenly;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.instructions__p {
+  text-align: center;
+}
+
+.instructions__btn {
+  padding: .3rem 1.5rem;
+  background-color: #1919A6;
+  color: #FFFF00;
+  font-size: 1.4rem;
+  border: none;
+  cursor: pointer;
+  -webkit-transition: all 400ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: all 400ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.instructions__btn:hover {
+  background-color: #2121DE;
 }
 
 .grid {
   background-color: #6A6D73;
   width: 100%;
-  height: 100%;
+  height: calc(100% - 80px);
   margin-left: -1px;
   display: -ms-grid;
   display: grid;
@@ -132,16 +199,19 @@ main {
 .endNode {
   width: 80%;
   height: 80%;
-  background-image: url('https://i.imgur.com/GeNKWHm.png');
+  background-image: url("https://imgur.com/GeNKWHm.png");
   background-size: 100%;
   background-position: center;
 }
 
 .endNode {
-  background-image: url('https://i.imgur.com/2JUMowc.png');
+  background-image: url("https://i.imgur.com/2JUMowc.png");
 }
 
 @media only screen and (min-width: 768px) {
+  .grid {
+    height: 100%;
+  }
   .nav {
     display: -webkit-box;
     display: -ms-flexbox;
@@ -190,6 +260,10 @@ main {
   .nav__btn.selected {
     background-color: #FFFF00;
     color: #1919A6;
+  }
+  .instructions {
+    width: 70vw;
+    margin-left: -35vw;
   }
 }
 
