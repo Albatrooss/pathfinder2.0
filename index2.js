@@ -67,7 +67,6 @@ class Grid {
         let dir = 'r'
         let last = this.found[this.found.length-1].split('-');
         here = here.split('-');
-        // console.log('hm', here, last)
         if (Number(here[0]) - 1 === Number(last[0])) {
             dir = 'r';
         } else if (Number(here[0]) + 1 === Number(last[0])) {
@@ -127,6 +126,7 @@ class Grid {
     dijkstras() {
         if (this.started) return;
         let path = [];
+        this.queue = [this.startNode];
         this.started = true;
         while (this.queue.length) {
             let current = this.current();
@@ -158,6 +158,7 @@ class Grid {
     aStar(h) {
         if (this.started) return;
         let path = [];
+        this.queue = [this.startNode];
         this.started = true;
         while (this.queue.length) {
             let current = this.current(ASTAR);
@@ -232,7 +233,6 @@ class Grid {
             $('#'+ path[i]).empty();
             if (i > 0) $('#'+ path[i-1]).empty(); 
             else {
-                console.log('asdfasdfasdfasdfasdf')
                 $('#'+this.startNode).empty()
             }
             $('#'+ path[i]).append('<div class="startNode">');
@@ -248,6 +248,8 @@ class Grid {
         this.found = [];
         this.path = [];
         this.started = false;
+        this.dragging = null;
+
         for (let i = 0; i < this.y; i++) {
             let row = {};
             for (let j = 0; j < this.x; j++) {
@@ -265,19 +267,19 @@ class Grid {
                 });
                 cell.on('mouseup', e => {
                     this.mouseDown = false;
-                    if (!this.started && !this.nodeList[i][j].blocked) {
+                    if (!this.dragging && !this.started && !this.nodeList[i][j].blocked && this.startNode !== coords) {
                         this.nodeList[i][j].blocked = true;
                         this.addWall(i, j);
                     }
                 });
                 cell.on('mouseenter', e => {
-                    if (this.mouseDown && !this.started && !this.nodeList[i][j].blocked) {
+                    if (!this.dragging && this.mouseDown && !this.started && !this.nodeList[i][j].blocked && this.startNode !== coords) {
                         this.nodeList[i][j].blocked = true;
                         this.addWall(i, j);
                     }
                 });
                 cell.on('mouseleave', e => {
-                    if (this.mouseDown && !this.started &&!this.nodeList[i][j].blocked) {
+                    if (!this.dragging && this.mouseDown && !this.started &&!this.nodeList[i][j].blocked && this.startNode !== coords) {
                         this.nodeList[i][j].blocked = true;
                         this.addWall(i, j);
                     }
@@ -285,26 +287,86 @@ class Grid {
                 cell.on('dragover', e => e.preventDefault())
                 cell.on('drop', e => {
                     e.preventDefault();
-                    const nodeId = e.dataTransfer.getData('node_id');
-                    const dropped = $('#'+nodeId);
-                    if (!e.target.id.match(/cell-/)) return dropped.style.display = 'block';
-                    if (nodeId === 'startNode') {
-                        dropped.style.display = 'block';
-                        startNode = e.target.id.split('-')[1];
-                        cell.append(dropped);
-                    } else if (nodeId === 'endNode') {
-
+                    this.mouseDown = false;
+                    if (this.dragging === 'startNode') {
+                        const startNode = $('<div id="startNode" class="startNode" draggable="true">');
+                        this.dragging = 'startNode';
+                        startNode.on('dragover', e => e.stopPropagation());
+                        startNode.on('dragstart', e => {
+                            this.dragging = 'startNode';
+                            this.mouseDown = false;
+                            setTimeout(() => {
+                                $('#'+this.startNode).empty();
+                            }, 0);
+                        });
+                        if (e.target.className !== 'cell') {
+                            return $('#'+this.startNode).append(startNode);
+                        }
+                        let newID = e.target.id;
+                        let [newX, newY] = newID.split('-');
+                        this.nodeList[Number(newY)][Number(newX)] = {
+                            gScore: 0,
+                            fScore: Infinity,
+                            cameFrom: newID,
+                            found: true,
+                            blocked: false,
+                        };
+                        let [oldX, oldY] = this.startNode.split('-');
+                        this.nodeList[Number(oldY)][Number(oldX)] = {
+                            gScore: Infinity,
+                            fScore: Infinity,
+                            cameFrom: null,
+                            found: false,
+                            blocked: false,
+                        };
+                        this.startNode = newID;
+                        $('#'+newID).append(startNode);
+                        
+                    } else if (this.dragging === 'endNode') {
+                        const endNode = $('<div id="endNodeNode" class="endNode" draggable="true">');
+                        this.dragging = 'endNode';
+                        endNode.on('dragover', e => e.stopPropagation());
+                        endNode.on('dragstart', e => {
+                            this.dragging = 'endNode';
+                            this.mouseDown = false;
+                            setTimeout(() => {
+                                $('#'+this.endNode).empty();
+                            }, 0);
+                        });
+                        if (e.target.className !== 'cell') {
+                            return $('#'+this.endNode).append(endNode);
+                        }
+                        let newID = e.target.id;
+                        this.endNode = newID;
+                        $('#'+newID).append(endNode);
                     }
+                    this.dragging = null;
                 })
                 // add start and end nodes
                 let [startX, startY] = this.startNode.split('-');
                 let [endX, endY] = this.endNode.split('-');
                 if (j === Number(startX) && i === Number(startY)) {
-                    const startNode = $('<div id="startNode" class="startNode">');
+                    const startNode = $('<div id="startNode" class="startNode" draggable="true">');
+                    startNode.on('dragover', e => e.stopPropagation());
+                    startNode.on('dragstart', e => {
+                        // this.mouseDown = false;
+                        this.dragging = 'startNode';
+                        setTimeout(() => {
+                            $('#'+this.startNode).empty();
+                        }, 0);
+                    });
                     cell.append(startNode);
                 }
                 if (j === Number(endX) && i === Number(endY)) {
-                    const endNode = $('<div id="endNode" class="endNode">');
+                    const endNode = $('<div id="endNode" class="endNode" draggable="true">');
+                    endNode.on('dragover', e => e.stopPropagation());
+                    endNode.on('dragstart', e => {
+                        // this.mouseDown = false;
+                        this.dragging = 'endNode';
+                        setTimeout(() => {
+                            $('#'+this.endNode).empty();
+                        }, 0);
+                    });
                     cell.append(endNode);
                 }
                 if (j === 0) {
@@ -320,7 +382,7 @@ class Grid {
         this.setNode(this.startNode, {
             gScore: 0,
             fScore: 0,
-            cameFrom: startNode,
+            cameFrom: this.startNode,
             found: true,
         })
     }
@@ -333,26 +395,29 @@ let height = $('#grid').height();
 let x = Math.floor(width / 25);
 let y = Math.floor(height/25);
 
+
+let quarterX = Math.floor(x/4)
+let quarterY = Math.floor(y/4);
+
+// size grid based window dimmensions
 $('#grid').css('grid-template-columns', `repeat(${x}, 1fr)`).css('grid-template-rows', `repeat(${y}, 1fr)`);
 
-
-let GRID = new Grid(x, y, `0-0`, `${x-1}-${y-1}`, 0)
+// initialze grid
+let GRID = new Grid(x, y, `${quarterX}-${quarterY}`, `${x-quarterX}-${y-quarterY}`, 0)
 let algorithm = DIJKSTRA;
 
-// $('#'+newGrid.startNode).css('background-color', 'green')
-// $('#'+newGrid.endNode).css('background-color', 'red')
-
+// add functions to the buttons
 $('#dijkBtn').on('click', function() {
     algorithm = DIJKSTRA;
     $(this).addClass('selected');
     $('#astarBtn').removeClass('selected');
-})
+});
+
 $('#astarBtn').on('click', function() {
     algorithm = ASTAR;
-    console.log($(this))
     $(this).addClass('selected');
     $('#dijkBtn').removeClass('selected');
-})
+});
 
 $('#startBtn').on('click', () => {
     if (algorithm === ASTAR) {
@@ -360,14 +425,14 @@ $('#startBtn').on('click', () => {
     } else {
         GRID.dijkstras();
     }
-})
+});
+
+$('#clearBtn').on('click', GRID.reset);
 
 $('#speedSelect').on('change', function() {
     GRID.speed = $(this).val();
-})
-
-$('#clearBtn').on('click', GRID.reset)
+});
 
 $('#instBtn').on('click', () => {
     $('#instructions').hide();
-})
+});
