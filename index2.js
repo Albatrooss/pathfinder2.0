@@ -4,7 +4,7 @@ const ASTAR = 1;
 const manhattan = (s, e) => {
     let [x1, y1] = s.split('-');
     let [x2, y2] = e.split('-');
-    return (Number(x2) - Number(x1)) + (Number(y2) - Number(y1));
+    return Math.abs(Number(x2) - Number(x1)) + Math.abs(Number(y2) - Number(y1));
 }
 
 class Grid {
@@ -17,9 +17,17 @@ class Grid {
         this.path = [];
         this.found =[];
         this.speed = speed;
-        this.mouseDown = false;
-        this.dir = 'r';
+        this.mouseDown = null;
         this.started = false;
+
+        //audio
+        this.wakaAudio = new Audio('wakawaka.wav');
+        this.loadingAudio = new Audio('random_sine_beeps.wav');
+        this.wakaAudio.volume = 0.1;
+        this.wakaAudio.loop = true;
+        this.loadingAudio.volume = 0.1;
+        this.loadingAudio.loop = true;
+
         this.reset();
         this.reset = this.reset.bind(this);
     }
@@ -62,22 +70,6 @@ class Grid {
         })
         cell.append(block);
     }
-    direction(here) {
-        if (this.found.length < 1) return 'r';
-        let dir = 'r'
-        let last = this.found[this.found.length-1].split('-');
-        here = here.split('-');
-        if (Number(here[0]) - 1 === Number(last[0])) {
-            dir = 'r';
-        } else if (Number(here[0]) + 1 === Number(last[0])) {
-            dir = 'l';
-        } else if (Number(here[1]) + 1 === Number(last[1])) {
-            dir = 'd';
-        } else if (Number(here[1]) - 1 === Number(last[1])) {
-            dir = 'u';
-        }
-        return dir
-    }
     node(n) {
         let [x, y] = n.split('-');
         return this.nodeList[Number(y)][Number(x)];
@@ -88,11 +80,9 @@ class Grid {
 
         for (let i = 0; i < this.queue.length; i++) {
             let here = this.queue[i];
-            let score = 0;
             let thisNode = this.node(here);
+            let score = thisNode.fScore;;
             if (type === 0) score = thisNode.gScore;
-            else if (type === 1) score = thisNode.fScore;
-            if (thisNode.dir !== this.direction(here)) score += 1;
             if (score < least) {
                 least = score;
                 leastIdx = i;
@@ -100,7 +90,6 @@ class Grid {
         }
         let current = this.queue[leastIdx];
         this.node(current).found = true
-        this.dir = this.direction(current);
         this.found.push(current);
         this.queue.splice(leastIdx, 1);
         return current
@@ -127,7 +116,14 @@ class Grid {
         if (this.started) return;
         let path = [];
         this.queue = [this.startNode];
+        this.setNode(this.startNode, {
+            gScore: 0,
+            fScore: 0,
+            cameFrom: this.startNode,
+            found: true,
+        });
         this.started = true;
+        this.loadingAudio.play();
         while (this.queue.length) {
             let current = this.current();
             if (current === this.endNode) {
@@ -158,7 +154,14 @@ class Grid {
     aStar(h) {
         if (this.started) return;
         let path = [];
+        this.loadingAudio.play();
         this.queue = [this.startNode];
+        this.setNode(this.startNode, {
+            gScore: 0,
+            fScore: 0,
+            cameFrom: this.startNode,
+            found: true,
+        });
         this.started = true;
         while (this.queue.length) {
             let current = this.current(ASTAR);
@@ -195,6 +198,7 @@ class Grid {
             path.unshift(current);
             current = this.node(current).cameFrom;
         }
+        if (path.length === 0) return [this.endNode];
         return path;
     }
     animateSearch(path) {
@@ -213,6 +217,8 @@ class Grid {
         let pathInterval = setInterval(() => {
             if (i === path.length-1) {
                 clearInterval(pathInterval);
+                this.loadingAudio.pause();
+                this.wakaAudio.play();
                 this.animatePacMan(path);
             }
             $('#'+ path[i]).empty();
@@ -222,20 +228,32 @@ class Grid {
     }
     animatePacMan(path) {
         let i = 0;
+        let flipped = false;
         let pathInterval = setInterval(() => {
             if (i === path.length) {
                 clearInterval(pathInterval);
                 $('#'+ this.endNode).empty();
                 $('#'+ path[i-1]).empty();
-                $('#'+ this.endNode).append('<div class="startNode">');
-                return;
+                $('#'+ this.endNode).append(`<div class="startNode ${this.endNode.split('-')[0] > path[i-1].split('-')[0] ? 'flipped' : ''}">`);
+                return setTimeout(() => this.wakaAudio.pause(), 100);
             }
             $('#'+ path[i]).empty();
             if (i > 0) $('#'+ path[i-1]).empty(); 
             else {
                 $('#'+this.startNode).empty()
             }
-            $('#'+ path[i]).append('<div class="startNode">');
+            let curX = path[i].split('-')[0]
+            if (i === 0) {
+                if (curX < this.startNode.split('-')[0]) flipped = true;
+            } else {
+                let lastX = path[i-1].split('-')[0]
+                if (curX < lastX) {
+                    flipped = true;
+                } else if (curX > lastX) {
+                    flipped = false;
+                }
+            }
+            $('#'+ path[i]).append(`<div class="startNode ${flipped ? 'flipped' : ''}">`);
             i++;
         }, 100)
     }
@@ -263,110 +281,53 @@ class Grid {
                 let coords = `${j}-${i}`;
                 const cell = $(`<div class="cell" id=${coords}>`);
                 cell.on('mousedown', e => {
-                    this.mouseDown = true;
+                    if (this.startNode === coords) {
+                        this.mouseDown = 'start';
+                    } else if (this.endNode === coords) {
+                        this.mouseDown = 'end'
+                    } else {
+                        this.mouseDown = 'block';
+                    }
                 });
                 cell.on('mouseup', e => {
                     this.mouseDown = false;
-                    if (!this.dragging && !this.started && !this.nodeList[i][j].blocked && this.startNode !== coords) {
+                    if (!this.started && !this.nodeList[i][j].blocked && this.startNode !== coords && this.endNode !== coords) {
                         this.nodeList[i][j].blocked = true;
                         this.addWall(i, j);
                     }
                 });
                 cell.on('mouseenter', e => {
-                    if (!this.dragging && this.mouseDown && !this.started && !this.nodeList[i][j].blocked && this.startNode !== coords) {
-                        this.nodeList[i][j].blocked = true;
-                        this.addWall(i, j);
+                    if (this.mouseDown && !this.started && !this.nodeList[i][j].blocked && this.startNode !== coords && this.endNode !== coords) {
+                        if (this.mouseDown === 'start') {
+                            $('#'+this.startNode).empty();
+                            this.startNode = e.target.id;
+                            cell.append($('<div id="startNode" class="startNode">'));
+                        } else if (this.mouseDown === 'end') {
+                            $('#'+this.endNode).empty();
+                            this.endNode = e.target.id;
+                            cell.append($('<div id="endNode" class="endNode">'));
+                        } else {
+                            this.nodeList[i][j].blocked = true;
+                            this.addWall(i, j);
+                        }
                     }
                 });
                 cell.on('mouseleave', e => {
-                    if (!this.dragging && this.mouseDown && !this.started &&!this.nodeList[i][j].blocked && this.startNode !== coords) {
+                    if (this.mouseDown && !this.started &&!this.nodeList[i][j].blocked && this.startNode !== coords && this.endNode !== coords) {
                         this.nodeList[i][j].blocked = true;
                         this.addWall(i, j);
                     }
                 });
-                cell.on('dragover', e => e.preventDefault())
-                cell.on('drop', e => {
-                    e.preventDefault();
-                    this.mouseDown = false;
-                    if (this.dragging === 'startNode') {
-                        const startNode = $('<div id="startNode" class="startNode" draggable="true">');
-                        this.dragging = 'startNode';
-                        startNode.on('dragover', e => e.stopPropagation());
-                        startNode.on('dragstart', e => {
-                            this.dragging = 'startNode';
-                            this.mouseDown = false;
-                            setTimeout(() => {
-                                $('#'+this.startNode).empty();
-                            }, 0);
-                        });
-                        if (e.target.className !== 'cell') {
-                            return $('#'+this.startNode).append(startNode);
-                        }
-                        let newID = e.target.id;
-                        let [newX, newY] = newID.split('-');
-                        this.nodeList[Number(newY)][Number(newX)] = {
-                            gScore: 0,
-                            fScore: Infinity,
-                            cameFrom: newID,
-                            found: true,
-                            blocked: false,
-                        };
-                        let [oldX, oldY] = this.startNode.split('-');
-                        this.nodeList[Number(oldY)][Number(oldX)] = {
-                            gScore: Infinity,
-                            fScore: Infinity,
-                            cameFrom: null,
-                            found: false,
-                            blocked: false,
-                        };
-                        this.startNode = newID;
-                        $('#'+newID).append(startNode);
-                        
-                    } else if (this.dragging === 'endNode') {
-                        const endNode = $('<div id="endNodeNode" class="endNode" draggable="true">');
-                        this.dragging = 'endNode';
-                        endNode.on('dragover', e => e.stopPropagation());
-                        endNode.on('dragstart', e => {
-                            this.dragging = 'endNode';
-                            this.mouseDown = false;
-                            setTimeout(() => {
-                                $('#'+this.endNode).empty();
-                            }, 0);
-                        });
-                        if (e.target.className !== 'cell') {
-                            return $('#'+this.endNode).append(endNode);
-                        }
-                        let newID = e.target.id;
-                        this.endNode = newID;
-                        $('#'+newID).append(endNode);
-                    }
-                    this.dragging = null;
-                })
+                
                 // add start and end nodes
                 let [startX, startY] = this.startNode.split('-');
                 let [endX, endY] = this.endNode.split('-');
                 if (j === Number(startX) && i === Number(startY)) {
-                    const startNode = $('<div id="startNode" class="startNode" draggable="true">');
-                    startNode.on('dragover', e => e.stopPropagation());
-                    startNode.on('dragstart', e => {
-                        // this.mouseDown = false;
-                        this.dragging = 'startNode';
-                        setTimeout(() => {
-                            $('#'+this.startNode).empty();
-                        }, 0);
-                    });
+                    const startNode = $('<div id="startNode" class="startNode">');
                     cell.append(startNode);
                 }
                 if (j === Number(endX) && i === Number(endY)) {
-                    const endNode = $('<div id="endNode" class="endNode" draggable="true">');
-                    endNode.on('dragover', e => e.stopPropagation());
-                    endNode.on('dragstart', e => {
-                        // this.mouseDown = false;
-                        this.dragging = 'endNode';
-                        setTimeout(() => {
-                            $('#'+this.endNode).empty();
-                        }, 0);
-                    });
+                    const endNode = $('<div id="endNode" class="endNode">');
                     cell.append(endNode);
                 }
                 if (j === 0) {
@@ -379,12 +340,6 @@ class Grid {
             }
             this.nodeList[i] = row;
         }
-        this.setNode(this.startNode, {
-            gScore: 0,
-            fScore: 0,
-            cameFrom: this.startNode,
-            found: true,
-        })
     }
 }
 

@@ -204,6 +204,12 @@ main {
   background-position: center;
 }
 
+.startNode.flipped,
+.endNode.flipped {
+  -webkit-transform: scaleX(-1);
+          transform: scaleX(-1);
+}
+
 .endNode {
   background-image: url("https://i.imgur.com/2JUMowc.png");
 }
