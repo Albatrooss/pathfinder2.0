@@ -23,9 +23,11 @@ class Grid {
         //audio
         this.wakaAudio = new Audio('wakawaka.wav');
         this.loadingAudio = new Audio('random_sine_beeps.wav');
+        this.noPathAudio = new Audio('wrong-buzzer.wav');
         this.wakaAudio.volume = 0.1;
-        this.wakaAudio.loop = true;
+        this.noPathAudio.volume = 0.1;
         this.loadingAudio.volume = 0.1;
+        this.wakaAudio.loop = true;
         this.loadingAudio.loop = true;
 
         this.reset();
@@ -214,6 +216,12 @@ class Grid {
     }
     animatePath(path) {
         let i = 0;
+        if (!path.length) {
+            setTimeout(() => {
+                this.loadingAudio.pause();
+                this.noPathAudio.play()
+            }, 300);
+        }
         let pathInterval = setInterval(() => {
             if (i === path.length-1) {
                 clearInterval(pathInterval);
